@@ -7,25 +7,26 @@
 
         public OrderProcessor(SQLiteManager sqliteManager)
         {
-            _sqliteManager = sqliteManager;
+            _sqliteManager = sqliteManager ?? throw new ArgumentNullException(nameof(sqliteManager));
         }
-        public void ProcessOrder(Order order)
+        public async Task ProcessOrder(Order order)
         {
-            _sqliteManager.StoreOrder(order);
-            if (order.IsProcessed)
+            var savedOrder = await _sqliteManager.StoreOrder(order);
+            if (savedOrder.IsProcessed)
             {
-                PrintReceipt(order);
+                PrintReceipt(savedOrder);
             }
             else
             {
-                Console.WriteLine($"Failed to process order ID: {order.OrderID}");
+                Console.WriteLine($"Failed to process order ID: {savedOrder.OrderID}");
             }
-
         }
-        public void PrintReceipt(Order order)
+
+        public static void PrintReceipt(Order order)
         {
             string receipt = "-----------------------------------\n" +
-                         $"Receipt for Order ID: {order.OrderID}\n" +
+                         "             RECEIPT            \n" +
+                         $"Order ID: {order.OrderID}\n" +
                          $"Product: {order.ProductName}\n" +
                          $"Quantity: {order.Quantity}\n" +
                          $"Price: {order.Price}\n" +

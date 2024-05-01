@@ -5,22 +5,23 @@ namespace OrderProcessingSystem
     public class SQLiteManager
     {
         // Store order in the relational database
-        private string _connectionString;
+        private readonly string _connectionString;
 
         public SQLiteManager()
         {
             _connectionString = "Data Source = orderProcessingSystem.db; Version = 3;";
         }
 
-        public void CreateTable()
+        public async Task CreateTable()
         {
             using (SQLiteConnection connection = new SQLiteConnection(_connectionString))
             {
-                connection.Open();
+                await connection.OpenAsync();
+
                 using (SQLiteCommand command = connection.CreateCommand())
                 {
                     command.CommandText = "SELECT name FROM sqlite_master WHERE type='table' AND name='Orders'";
-                    object result = command.ExecuteScalar();
+                    var result = await command.ExecuteScalarAsync();
                     if (result == null)
                     {
                         command.CommandText = @"CREATE TABLE Orders 
@@ -29,21 +30,21 @@ namespace OrderProcessingSystem
                           Quantity INTEGER,
                           Price DOUBLE,
                           OrderDate DATETIME)";
+                        Console.WriteLine("Orders table created successfully.");
                     }
-                    command.ExecuteNonQuery();
-                    Console.WriteLine("Orders table created successfully.");
-
+                    await command.ExecuteNonQueryAsync();
+                    Console.WriteLine("Orders table already exists. Add orders to process.");
                 }
             }
         }
 
-        public void StoreOrder(Order order)
+        public async Task<Order> StoreOrder(Order order)
         {
             using (SQLiteConnection connection = new SQLiteConnection(_connectionString))
             {
-                connection.Open();
+                await connection.OpenAsync();
 
-                int lastOrderId = GetLastOrderID(connection);
+                int lastOrderId = await GetLastOrderID(connection);
                 order.OrderID = lastOrderId + 1;
 
                 using (SQLiteCommand command = connection.CreateCommand())
@@ -57,21 +58,20 @@ namespace OrderProcessingSystem
                     command.Parameters.AddWithValue("@Price", order.Price);
                     command.Parameters.AddWithValue("@OrderDate", order.OrderDate);
 
-                    command.ExecuteNonQuery();
+                    await command.ExecuteNonQueryAsync();
                 }
-
-                Console.WriteLine($"Order stored successfully. {order.OrderID}");
                 order.IsProcessed = true;
+                return order;
             }
         }
 
-        private static int GetLastOrderID(SQLiteConnection connection)
+        private static async Task<int> GetLastOrderID(SQLiteConnection connection)
         {
             int lastOrderID = 0;
             using (SQLiteCommand command = connection.CreateCommand())
             {
                 command.CommandText = "SELECT MAX(OrderID) FROM Orders";
-                var result = command.ExecuteScalar();
+                var result = await command.ExecuteScalarAsync();
 
                 if (result != null && result != DBNull.Value)
                 {
@@ -79,7 +79,6 @@ namespace OrderProcessingSystem
                 }
             }
             return lastOrderID;
-
         }
     }
 }

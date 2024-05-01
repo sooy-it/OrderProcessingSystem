@@ -1,12 +1,13 @@
 ﻿namespace OrderProcessingSystem
 {
-    internal class Program
+    public class Program
     {
         //Main method to run the generation and storing by calling GenerateOrder with a number and reference to the OrderProcessor.
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             SQLiteManager sqliteManager = new SQLiteManager();
-            sqliteManager.CreateTable();
+            await sqliteManager.CreateTable();
+
             OrderProcessor orderProcessor = new OrderProcessor(sqliteManager);
             OrderGenerator orderGenerator = new OrderGenerator(orderProcessor);
 
@@ -14,7 +15,8 @@
             var input = Console.ReadLine();
 
             int numberOfOrders = int.TryParse(input, out int result) ? result : 0;
-            orderGenerator.GenerateOrder(numberOfOrders);
+
+            await orderGenerator.GenerateOrder(numberOfOrders);
         }
     }
 }
