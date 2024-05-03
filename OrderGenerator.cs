@@ -16,7 +16,7 @@
         {
             for (int i = 0; i < numberOfOrders; i++)
             {
-                // Generate random orders
+                // Generate random orders details
                 string productName = "Product" + _random.Next(1, 100);
                 int quantity = _random.Next(1, 10);
                 double price = Math.Round(_random.NextDouble() * 100, 2);

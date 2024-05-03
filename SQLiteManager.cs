@@ -22,6 +22,7 @@ namespace OrderProcessingSystem
                 {
                     command.CommandText = "SELECT name FROM sqlite_master WHERE type='table' AND name='Orders'";
                     var result = await command.ExecuteScalarAsync();
+
                     if (result == null)
                     {
                         command.CommandText = @"CREATE TABLE Orders 
@@ -30,10 +31,14 @@ namespace OrderProcessingSystem
                           Quantity INTEGER,
                           Price DOUBLE,
                           OrderDate DATETIME)";
+
+                        await command.ExecuteNonQueryAsync();
                         Console.WriteLine("Orders table created successfully.");
                     }
-                    await command.ExecuteNonQueryAsync();
-                    Console.WriteLine("Orders table already exists. Add orders to process.");
+                    else
+                    {
+                        Console.WriteLine("Orders table already exists. Add orders to process.");
+                    }
                 }
             }
         }

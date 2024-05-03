@@ -27,7 +27,7 @@
             string receipt = "-----------------------------------\n" +
                          "             RECEIPT            \n" +
                          $"Order ID: {order.OrderID}\n" +
-                         $"Product: {order.ProductName}\n" +
+                         $"Product Name: {order.ProductName}\n" +
                          $"Quantity: {order.Quantity}\n" +
                          $"Price: {order.Price}\n" +
                          $"Order Date: {order.OrderDate}\n" +
